@@ -2,20 +2,15 @@
 
 name: CI-CD
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
+
   push:
     branches: [ "main" ]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   CI:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
     steps:
@@ -37,3 +32,21 @@ jobs:
             izabelrodrigues/kube-news:latest
             izabelrodrigues/kube-news:v${{ github.run_number }}
 
+  CD:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Kubernetes Set Context
+        uses: Azure/k8s-set-context@v2
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ SECRETS.K8S_CONFIG }}
+
+      - name: Deploy to Kubernetes cluster
+        uses: Azure/k8s-deploy@v3.1
+        with:
+          images: izabelrodrigues/kube-news:v${{ github.run_number }}
+          manifests: |
+              k8s/deployment.yaml
