@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kube-news-db-deployment
+  name: kubenews-db-deployment
 spec:
   selector:
     matchLabels:
@@ -29,7 +29,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: kube-news-service
+  name: kubenewsdb-service
 spec:
   selector:
     app: postegresdb
@@ -39,3 +39,43 @@ spec:
 
 ---
 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubenews-app-deployment
+spec:
+  selector:
+    matchLabels:
+      app: kubenews-app
+  template:
+    metadata:
+      labels: 
+        app: kubenews-app
+    spec:
+      containers:
+      - name: kubenews-app
+        image: izabelrodrigues/kube-news:v1
+        env:
+        - name: DB_DATABASE
+          value: "kubedevnews"
+        - name: DB_USERNAME
+          value: "kubedevnews"
+        - name: DB_PASSWORD
+          value: "Pg#123"
+        - name: DB_HOST
+          value: "kubenewsdb-service" # mesmo nome do service do banco de dados
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubenews-app-service
+spec:
+  selector:
+    app: kubenews-app
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30001
+  type: NodePort
