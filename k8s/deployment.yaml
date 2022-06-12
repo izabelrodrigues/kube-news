@@ -78,5 +78,5 @@ spec:
     - port: 80
       targetPort: 8080
       nodePort: 30001
-  type: NodePort
-  #type: LoadBalancer ( Para usar com a digital ocean )
+  #type: NodePort
+  type: LoadBalancer #( Para usar com a digital ocean )
